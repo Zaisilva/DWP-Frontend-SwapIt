@@ -1,0 +1,41 @@
+.formGroup {
+    margin-bottom: 1.25rem;
+    flex: 1;
+  }
+  
+  .formLabel {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .inputWrapper {
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .inputWrapper:hover {
+    border-color: #20b2aa;
+  }
+  
+  .inputFocused {
+    border-color: #20b2aa;
+    box-shadow: 0 0 0 3px rgba(32, 178, 170, 0.15);
+  }
+  
+  .formInput {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: transparent;
+    outline: none;
+  }
+  
+  .formInput::placeholder {
+    color: #aaa;
+  }

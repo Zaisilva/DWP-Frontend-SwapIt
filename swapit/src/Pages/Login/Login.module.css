@@ -1,0 +1,226 @@
+.loginPage {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.loginContainer {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+.formWrapper {
+  width: 100%;
+  max-width: 420px;
+}
+
+.loginForm {
+  border: 2px solid #20b2aa;
+  border-radius: 20px;
+  padding: 2.5rem;
+  background-color: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.loginForm:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.formTitle {
+  color: #20b2aa;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.labelContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.formLabel {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.forgotPassword {
+  font-size: 0.85rem;
+  color: #20b2aa;
+  text-decoration: none;
+  margin-top: 8px;
+  transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+.forgotPassword:hover {
+  color: #18877f;
+  text-decoration: underline;
+}
+
+.forgotPassword:active {
+  color: #106661;
+}
+
+
+.inputWrapper {
+  position: relative;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.inputWrapper:hover {
+  border-color: #20b2aa;
+}
+
+.inputFocused {
+  border-color: #20b2aa;
+  box-shadow: 0 0 0 3px rgba(32, 178, 170, 0.15);
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: transparent;
+  outline: none;
+}
+
+.formInput::placeholder {
+  color: #aaa;
+}
+
+.errorContainer {
+  margin-bottom: 1.25rem;
+  background-color: rgba(255, 0, 0, 0.05);
+  border-radius: 6px;
+  padding: 0.75rem;
+  border-left: 3px solid #ff0000;
+}
+
+.errorText {
+  color: #ff0000;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+}
+
+.loginButton {
+  padding: 0.75rem 2.5rem;
+  background-color: #20b2aa;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 0.95rem;
+  transition: background-color 0.2s, transform 0.1s;
+  min-width: 180px;
+  box-shadow: 0 2px 8px rgba(32, 178, 170, 0.25);
+}
+
+.loginButton:hover {
+  background-color: #189e98;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(32, 178, 170, 0.3);
+}
+
+.loginButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(32, 178, 170, 0.2);
+}
+
+.loginButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.loadingText {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+}
+
+.loadingDot {
+  width: 6px;
+  height: 6px;
+  background-color: white;
+  border-radius: 50%;
+  animation: loadingDot 1.4s infinite ease-in-out both;
+}
+
+.loadingDot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loadingDot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes loadingDot {
+  0%, 80%, 100% { 
+    transform: scale(0);
+  }
+  40% { 
+    transform: scale(1);
+  }
+}
+
+.registerContainer {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.registerLink {
+  color: #1a2a3a;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.registerLink:hover {
+  color: #1a2a3a;
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .loginForm {
+    padding: 2rem 1.5rem;
+  }
+  
+  .formTitle {
+    font-size: 1.35rem;
+  }
+}
+.labelContainer {
+  display: flex;
+  justify-content: center; /* Centra el contenido */
+  width: 100%;
+}

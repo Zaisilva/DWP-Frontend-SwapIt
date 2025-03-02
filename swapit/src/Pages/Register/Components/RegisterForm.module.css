@@ -1,0 +1,59 @@
+.formWrapper {
+    width: 100%;
+    max-width: 580px;
+  }
+  
+  .registerForm {
+    border: 2px solid #20b2aa;
+    border-radius: 20px;
+    padding: 2.5rem;
+    background-color: white;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .registerForm:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .formRow {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0;
+  }
+  
+  .buttonContainer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    margin-top: 2rem;
+  }
+  
+  .loginContainer {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  .loginLink {
+    color: #1a2a3a;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+  
+  .loginLink:hover {
+    color: #1a2a3a;
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 640px) {
+    .formRow {
+      flex-direction: column;
+      gap: 0;
+    }
+    
+    .registerForm {
+      padding: 2rem 1.5rem;
+    }
+  }

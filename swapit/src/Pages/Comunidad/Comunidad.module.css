@@ -1,0 +1,49 @@
+.communityContainer {
+    padding: 2rem 1rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .contentWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .imageBox {
+    aspect-ratio: 1/1;
+    background-color: #f0f0f0;
+    border: 1px solid var(--border);
+    width: 100%;
+  }
+  
+  .contentBox {
+    flex: 1;
+  }
+  
+  .title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  
+  .description {
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+    color: var(--light-text);
+  }
+  
+  .actionButton {
+    margin-top: 1rem;
+  }
+  
+  @media (min-width: 768px) {
+    .contentWrapper {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+    
+    .imageBox {
+      width: 280px;
+    }
+  }

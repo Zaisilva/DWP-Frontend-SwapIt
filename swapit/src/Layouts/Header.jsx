@@ -5,7 +5,7 @@ import Logo from '../Components/UI/Logo';
 
 const Header = () => {
   const navLinks = [
-    { path: '/', label: 'Inicio' },
+    { path: '/inicio', label: 'Inicio' },
     { path: '/explorar', label: 'Explorar' },
     { path: '/publicar', label: 'Publicar' }
   ];
@@ -33,18 +33,20 @@ const Header = () => {
         </nav>
         
         <div className={styles.headerActions}>
+          {/* Link para el perfil */}
+          <Link to="/perfil" aria-label="Perfil de usuario">
+            <button className={styles.iconButton}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </button>
+          </Link>
+
+          <Link to="/contactanos" aria-label="Perfil de usuario">
           <button 
             className={styles.iconButton} 
-            aria-label="Perfil de usuario"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-          </button>
-          <button 
-            className={styles.iconButton} 
-            aria-label="Ayuda"
+          
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
@@ -52,6 +54,8 @@ const Header = () => {
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
           </button>
+          </Link>
+
         </div>
       </div>
     </header>

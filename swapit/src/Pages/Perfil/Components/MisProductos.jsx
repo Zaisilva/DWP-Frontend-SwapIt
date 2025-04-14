@@ -1,12 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Button, Empty, Spin, message, Modal, Form, Input, Select, Upload, Space, Divider } from 'antd';
-import { ShopOutlined, EditOutlined, DeleteOutlined, PlusOutlined, ExclamationCircleOutlined, SwapOutlined } from '@ant-design/icons';
+import { ShopOutlined, EditOutlined, DeleteOutlined, PlusOutlined, ExclamationCircleOutlined, SwapOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { getMisProductos, deleteProducto, updateProducto, getEstadosMexico, completarTrueque } from '../../../services/productosServices';
 
 const { TextArea } = Input;
 const { Option } = Select;
 const { confirm } = Modal;
+
+// URL base para las imágenes - ajusta esto según tu configuración
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+// Función para formatear correctamente las URLs de las imágenes
+const formatImageUrl = (imagePath) => {
+  if (!imagePath) return 'https://via.placeholder.com/300x200?text=Sin+Imagen';
+  
+  // Si la imagen ya es una URL completa, la devolvemos como está
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath;
+  }
+  
+  // Si la imagen comienza con "/", la consideramos una ruta relativa al servidor
+  if (imagePath.startsWith('/')) {
+    return `${API_URL}${imagePath}`;
+  }
+  
+  // En cualquier otro caso, la tratamos como relativa al API_URL
+  return `${API_URL}/${imagePath}`;
+};
 
 const MisProductos = () => {
   const [productos, setProductos] = useState([]);
@@ -16,6 +37,18 @@ const MisProductos = () => {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
+  
+  
+  // Estado para la ventana de confirmación de eliminación/intercambio
+  const [eliminarModalVisible, setEliminarModalVisible] = useState(false);
+  const [productoAEliminar, setProductoAEliminar] = useState(null);
+  const [procesandoAccion, setProcesandoAccion] = useState(false);
+  
+  // Estado para previsualizar imágenes
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
+  
   const navigate = useNavigate();
 
   // Categorías disponibles
@@ -29,6 +62,9 @@ const MisProductos = () => {
   const estadosProducto = ['Nuevo', 'Como nuevo', 'Buen estado', 'Usado', 'Necesita reparación'];
 
   useEffect(() => {
+    // Obtener y decodificar el token
+   
+    
     cargarProductos();
   }, []);
 
@@ -36,6 +72,7 @@ const MisProductos = () => {
     try {
       setLoading(true);
       const data = await getMisProductos();
+      console.log('Productos cargados:', data); // Para debug
       setProductos(data);
     } catch (error) {
       console.error('Error al cargar mis productos:', error);
@@ -44,7 +81,11 @@ const MisProductos = () => {
     }
   };
 
-  const handleEditar = (producto) => {
+  const handleEditar = (producto, e) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    
     setCurrentProducto(producto);
     
     // Preparar las imágenes existentes para el componente Upload
@@ -52,8 +93,8 @@ const MisProductos = () => {
       uid: `-${index}`,
       name: `imagen-${index}.jpg`,
       status: 'done',
-      url: url,
-      thumbUrl: url,
+      url: formatImageUrl(url),
+      thumbUrl: formatImageUrl(url),
     }));
     
     setFileList(imagenesExistentes);
@@ -73,65 +114,60 @@ const MisProductos = () => {
     setEditModalVisible(true);
   };
 
-  const handleEliminar = (id, estaIntercambiado) => {
-    console.log('handleEliminar llamado para producto ID:', id);
-    
-    Modal.confirm({
-      title: '¿Estás seguro de eliminar este producto?',
-      icon: <ExclamationCircleOutlined />,
-      content: estaIntercambiado 
-        ? 'Este producto ya ha sido intercambiado. ¿Deseas eliminarlo de tu historial?' 
-        : '¿Quieres eliminar este producto o marcarlo como intercambiado?',
-      okText: 'Sí, eliminar',
-      okType: 'danger',
-      cancelText: 'Cancelar',
-      onOk: () => {
-        console.log('Confirmación de eliminación para producto ID:', id);
-        message.loading('Eliminando producto...', 1);
-        
-        // Usar setTimeout para asegurar que el mensaje de carga se muestre
-        setTimeout(async () => {
-          try {
-            await deleteProducto(id);
-            console.log('Producto eliminado exitosamente, actualizando lista');
-            setProductos(prevProductos => prevProductos.filter(p => p._id !== id));
-            message.success('Producto eliminado correctamente');
-          } catch (error) {
-            console.error('Error en la eliminación:', error);
-            message.error('No se pudo eliminar el producto');
-          }
-        }, 500);
-      },
-      footer: (_, { OkBtn, CancelBtn }) => (
-        <>
-          <CancelBtn />
-          {!estaIntercambiado && (
-            <Button 
-              icon={<SwapOutlined />} 
-              onClick={() => {
-                Modal.destroyAll();
-                console.log('Botón de marcar como intercambiado presionado');
-                handleMarcarIntercambiado(id);
-              }}
-              style={{ marginRight: 8 }}
-            >
-              Marcar como intercambiado
-            </Button>
-          )}
-          <OkBtn />
-        </>
-      ),
-    });
+  // Nueva función para mostrar el modal de eliminación/intercambio
+  const mostrarModalEliminar = (producto, e) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    setProductoAEliminar(producto);
+    setEliminarModalVisible(true);
   };
 
+  // Función para eliminar el producto
+  const eliminarProducto = async () => {
+    if (!productoAEliminar) return;
+    
+    try {
+      setProcesandoAccion(true);
+      await deleteProducto(productoAEliminar._id);
+      setProductos(prev => prev.filter(p => p._id !== productoAEliminar._id));
+      message.success('Producto eliminado correctamente');
+      setEliminarModalVisible(false);
+    } catch (error) {
+      console.error('Error al eliminar producto:', error);
+      message.error('No se pudo eliminar el producto');
+    } finally {
+      setProcesandoAccion(false);
+    }
+  };
+
+  // Función para marcar un producto como intercambiado
   const handleMarcarIntercambiado = async (id) => {
     try {
+      setProcesandoAccion(true);
+      
+      // Utilizamos la función del servicio que ya tienes implementada
       await completarTrueque(id);
-      // Recargar productos para reflejar el cambio
+      
+      // Actualizar la UI para reflejar el cambio
+      setProductos(prevProductos => 
+        prevProductos.map(producto => 
+          producto._id === id 
+            ? { ...producto, disponible: false, fechaTrueque: new Date() } 
+            : producto
+        )
+      );
+      
+      // Recargar productos para asegurar que tenemos los datos más actualizados
       cargarProductos();
-      message.success('Producto marcado como intercambiado');
+      
+      setEliminarModalVisible(false);
+      message.success('¡Felicidades por tu intercambio! El producto ha sido marcado como intercambiado y se ha sumado a tus estadísticas.');
     } catch (error) {
       console.error('Error al marcar como intercambiado:', error);
+      message.error('Error al marcar como intercambiado');
+    } finally {
+      setProcesandoAccion(false);
     }
   };
 
@@ -156,7 +192,14 @@ const MisProductos = () => {
       // Procesar imágenes
       const imagenesExistentes = fileList
         .filter(file => file.url) // Solo las que ya tienen URL (existentes)
-        .map(file => file.url);
+        .map(file => {
+          // Eliminar el API_URL de la URL para almacenar solo la ruta relativa
+          let url = file.url;
+          if (url.startsWith(API_URL)) {
+            url = url.substring(API_URL.length);
+          }
+          return url;
+        });
       
       const nuevasImagenes = fileList
         .filter(file => file.originFileObj) // Solo las nuevas (con archivo original)
@@ -177,17 +220,26 @@ const MisProductos = () => {
       console.error('Error al actualizar producto:', error);
       // Mostrar mensaje de error al usuario en lugar de manejar específicamente el 401
       message.error(error.response?.data?.message || 'Error al actualizar el producto');
-      // Eliminar esta condición que podría estar causando problemas con la sesión
-      // if (error.response && error.response.status === 401) {
-      //   // No hacer nada aquí, ya que el servicio manejará la redirección
-      // }
     } finally {
       setSubmitLoading(false);
     }
   };
+
   const handleUploadChange = ({ fileList: newFileList }) => {
     setFileList(newFileList);
   };
+
+  // Función para mostrar/ocultar la información del token
+ 
+  
+  // Funciones para previsualizar imágenes
+  const handlePreview = async (file) => {
+    setPreviewImage(file.url || file.thumbUrl);
+    setPreviewVisible(true);
+    setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
+  };
+  
+  const handleCancelPreview = () => setPreviewVisible(false);
 
   const uploadButton = (
     <div>
@@ -195,6 +247,36 @@ const MisProductos = () => {
       <div style={{ marginTop: 8 }}>Subir</div>
     </div>
   );
+
+  // Función para mostrar la imagen del producto con gestión de errores
+  const renderProductImage = (producto) => {
+    if (!producto.imagenes || producto.imagenes.length === 0) {
+      return <img 
+        alt="Sin imagen"
+        src="https://via.placeholder.com/300x200?text=Sin+Imagen"
+        style={styles.productImage}
+        onError={(e) => {
+          e.target.onerror = null; 
+          e.target.src = "https://via.placeholder.com/300x200?text=Error+de+Imagen";
+        }}
+      />;
+    }
+    
+    // Intentar cargar la primera imagen
+    const imageSrc = formatImageUrl(producto.imagenes[0]);
+    console.log('URL de imagen formateada:', imageSrc); // Para debug
+    
+    return <img 
+      alt={producto.titulo} 
+      src={imageSrc}
+      style={styles.productImage}
+      onError={(e) => {
+        console.error('Error al cargar la imagen:', e);
+        e.target.onerror = null; 
+        e.target.src = "https://via.placeholder.com/300x200?text=Error+de+Imagen";
+      }}
+    />;
+  };
 
   if (loading) {
     return (
@@ -206,6 +288,9 @@ const MisProductos = () => {
 
   return (
     <div style={styles.container}>
+      {/* Área de depuración del token */}
+     
+
       <div style={styles.header}>
         <h1 style={styles.title}>Mis Publicaciones</h1>
         <Button 
@@ -237,15 +322,18 @@ const MisProductos = () => {
               <Card
                 hoverable
                 cover={
-                  <div style={styles.imageContainer}>
-                    <img 
-                      alt={producto.titulo} 
-                      src={producto.imagenes && producto.imagenes.length > 0 
-                        ? producto.imagenes[0] 
-                        : 'https://via.placeholder.com/300x200?text=Sin+Imagen'}
-                      style={styles.productImage}
-                    />
-                    {producto.intercambiado && (
+                  <div 
+                    style={styles.imageContainer}
+                    onClick={() => {
+                      if (producto.imagenes && producto.imagenes.length > 0) {
+                        setPreviewImage(formatImageUrl(producto.imagenes[0]));
+                        setPreviewTitle(producto.titulo);
+                        setPreviewVisible(true);
+                      }
+                    }}
+                  >
+                    {renderProductImage(producto)}
+                    {!producto.disponible && (
                       <div style={styles.intercambiadoTag}>
                         Intercambiado
                       </div>
@@ -256,8 +344,8 @@ const MisProductos = () => {
                   <Button 
                     type="text" 
                     icon={<EditOutlined />} 
-                    onClick={() => handleEditar(producto)}
-                    disabled={producto.intercambiado}
+                    onClick={(e) => handleEditar(producto, e)}
+                    disabled={!producto.disponible}
                   >
                     Editar
                   </Button>,
@@ -265,7 +353,7 @@ const MisProductos = () => {
                     type="text" 
                     danger 
                     icon={<DeleteOutlined />} 
-                    onClick={() => handleEliminar(producto._id, producto.intercambiado)}
+                    onClick={(e) => mostrarModalEliminar(producto, e)}
                   >
                     Eliminar
                   </Button>
@@ -399,6 +487,7 @@ const MisProductos = () => {
               onChange={handleUploadChange}
               beforeUpload={() => false} // Evita la subida automática
               maxCount={5}
+              onPreview={handlePreview}
             >
               {fileList.length >= 5 ? null : uploadButton}
             </Upload>
@@ -415,6 +504,88 @@ const MisProductos = () => {
             </Space>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* Modal de Confirmación de Eliminación/Intercambio */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <ExclamationCircleOutlined style={{ color: '#ff4d4f', marginRight: '10px' }} />
+            Gestionar Producto
+          </div>
+        }
+        open={eliminarModalVisible}
+        onCancel={() => setEliminarModalVisible(false)}
+        footer={null}
+        closable={!procesandoAccion}
+        maskClosable={!procesandoAccion}
+        destroyOnClose
+      >
+        <div style={styles.eliminarModalContent}>
+          <p>¿Qué acción deseas realizar con este producto?</p>
+          
+          <div style={styles.eliminarModalOptions}>
+            <Button 
+              type="primary" 
+              danger
+              icon={<DeleteOutlined />}
+              onClick={eliminarProducto}
+              style={styles.eliminarModalButton}
+              loading={procesandoAccion}
+              disabled={procesandoAccion}
+            >
+              Eliminar Completamente
+            </Button>
+            
+            <Button 
+              type="primary"
+              icon={<SwapOutlined />}
+              onClick={() => handleMarcarIntercambiado(productoAEliminar?._id)}
+              style={{...styles.eliminarModalButton, backgroundColor: '#52c41a', borderColor: '#52c41a'}}
+              disabled={procesandoAccion || (productoAEliminar && !productoAEliminar.disponible)}
+              loading={procesandoAccion}
+            >
+              {productoAEliminar && !productoAEliminar.disponible 
+                ? "Ya está marcado como intercambiado" 
+                : "Marcar como Intercambiado"}
+            </Button>
+            
+            <Button 
+              onClick={() => setEliminarModalVisible(false)}
+              style={styles.eliminarModalButton}
+              disabled={procesandoAccion}
+            >
+              Cancelar
+            </Button>
+          </div>
+          
+          <div style={styles.eliminarModalInfo}>
+            {productoAEliminar && (
+              <div>
+                <p><strong>Producto:</strong> {productoAEliminar.titulo}</p>
+                <p><strong>Estado actual:</strong> {productoAEliminar.disponible ? "Disponible" : "Intercambiado"}</p>
+                {productoAEliminar && productoAEliminar.disponible && (
+                  <div style={styles.infoContainer}>
+                    <div style={styles.infoBox}>
+                      <InfoCircleOutlined style={{ marginRight: '5px', color: '#1890ff' }} />
+                      <span>Al marcar como intercambiado, este producto se agregará a tu historial de intercambios y se incrementará tu contador de cambios exitosos.</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </Modal>
+      
+      {/* Modal para previsualizar imágenes */}
+      <Modal
+        visible={previewVisible}
+        title={previewTitle}
+        footer={null}
+        onCancel={handleCancelPreview}
+      >
+        <img alt="Previsualización" style={{ width: '100%' }} src={previewImage} />
       </Modal>
     </div>
   );
@@ -451,6 +622,7 @@ const styles = {
     alignItems: 'center',
     backgroundColor: '#f5f5f5',
     position: 'relative',
+    cursor: 'pointer',
   },
   productImage: {
     width: '100%',
@@ -467,7 +639,68 @@ const styles = {
     borderRadius: '4px',
     fontWeight: 'bold',
     fontSize: '12px',
-  }
+  },
+  // Estilos para la sección de depuración
+  debugSection: {
+    marginBottom: '20px',
+    padding: '15px',
+    backgroundColor: '#f0f2f5',
+    borderRadius: '8px',
+    borderLeft: '4px solid #1890ff',
+  },
+  tokenInfo: {
+    marginTop: '15px',
+    fontSize: '14px',
+  },
+  tokenText: {
+    padding: '10px',
+    backgroundColor: '#fff',
+    border: '1px solid #d9d9d9',
+    borderRadius: '4px',
+    wordBreak: 'break-all',
+    marginBottom: '10px',
+    maxHeight: '100px',
+    overflow: 'auto',
+  },
+  tokenData: {
+    padding: '10px',
+    backgroundColor: '#fff',
+    border: '1px solid #d9d9d9',
+    borderRadius: '4px',
+    overflow: 'auto',
+    maxHeight: '200px',
+  },
+  // Estilos para el modal de eliminación
+  eliminarModalContent: {
+    padding: '10px 0',
+  },
+  eliminarModalOptions: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+    marginTop: '20px',
+  },
+  eliminarModalButton: {
+    width: '100%',
+    height: '40px',
+  },
+  eliminarModalInfo: {
+    marginTop: '20px',
+    padding: '10px',
+    backgroundColor: '#f5f5f5',
+    borderRadius: '4px',
+    border: '1px solid #d9d9d9',
+  },
+  infoContainer: {
+    marginTop: '10px',
+  },
+  infoBox: {
+    display: 'flex',
+    padding: '10px',
+    backgroundColor: '#e6f7ff',
+    borderRadius: '4px',
+    border: '1px solid #91d5ff',
+  },
 };
 
 export default MisProductos;

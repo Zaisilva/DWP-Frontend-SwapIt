@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styles from './FormInput.module.css';
+import styles from '../styles/FormInput.module.css';
 
 const FormInput = ({ 
   id, 

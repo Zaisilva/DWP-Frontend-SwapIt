@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import LocationBar from '../../Components/UI/LocationBar';
 import SearchBar from '../../Components/UI/SearchBar';
 import CategorySidebar from '../../Components/UI/CategorySidebar';
-import ItemCard from '../../Components/UI/ItemCard';
+import ItemCard from '../../Components/Cards/ItemCard';
 import { getAllProductos, searchProductosByName, searchProductos } from '../../services/productosServices';
 import { Spin, message } from 'antd';
+
 
 function Explorar() {
   const [items, setItems] = useState([]);

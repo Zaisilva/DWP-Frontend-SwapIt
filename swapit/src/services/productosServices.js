@@ -23,7 +23,7 @@ export const getProductoById = async (id) => {
     throw error;
   }
 };
-
+// crear proecuto
 export const createProducto = async (productoData) => {
     try {
       // Preparar los datos para enviar al servidor
@@ -70,7 +70,6 @@ export const createProducto = async (productoData) => {
       throw error;
     }
   };
-
 // Función para extraer el ID del usuario del token JWT
 function getUserIdFromToken() {
   const token = localStorage.getItem('token');
@@ -90,7 +89,7 @@ function getUserIdFromToken() {
   }
 }
 
-// Actualizar un producto existente
+// Fix for updateProducto service function
 export const updateProducto = async (id, productoData) => {
   try {
     // Preparar los datos para enviar al servidor
@@ -101,11 +100,11 @@ export const updateProducto = async (id, productoData) => {
     formData.append('descripcion', productoData.descripcion);
     formData.append('categoria', productoData.categoria);
     formData.append('estado', productoData.estado);
-    formData.append('intercambioPor', productoData.intercambioPor);
+    formData.append('intercambioPor', productoData.intercambioPor || '');
     
-    // Añadir datos de ubicación
+    // Añadir datos de ubicación - corregir el formato según el API
     formData.append('ubicacion[ciudad]', productoData.ubicacion.ciudad);
-    formData.append('ubicacion[estado]', productoData.ubicacion.estado); // Cambiado de provincia a estado
+    formData.append('ubicacion[estado]', productoData.ubicacion.estado);
     
     if (productoData.ubicacion.codigoPostal) {
       formData.append('ubicacion[codigoPostal]', productoData.ubicacion.codigoPostal);
@@ -122,17 +121,27 @@ export const updateProducto = async (id, productoData) => {
     if (productoData.imagenesExistentes && productoData.imagenesExistentes.length > 0) {
       formData.append('imagenesExistentes', JSON.stringify(productoData.imagenesExistentes));
     }
+    
+    // Asegurar que el token de autenticación esté incluido en todas las solicitudes
+    const token = localStorage.getItem('authToken'); // Asumiendo que guardas el token así
+    
     const response = await api.put(`/productos/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
+        // Si no tienes un interceptor configurado, agrega la autorización aquí
+        // 'Authorization': `Bearer ${token}`
       },
     });
     
     message.success('¡Producto actualizado exitosamente!');
     return response.data;
   } catch (error) {
-    console.error('Error al actualizar producto:', error);
-    if (error.response?.data?.mensaje) {
+    // Verificar si el error es de autenticación (401)
+    if (error.response && error.response.status === 401) {
+      message.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+      // Aquí podrías redirigir al usuario a la página de login
+      // Ejemplo: window.location.href = '/login';
+    } else if (error.response?.data?.mensaje) {
       message.error(error.response.data.mensaje);
     } else {
       message.error('Error al actualizar el producto. Por favor, intenta de nuevo');
@@ -140,7 +149,6 @@ export const updateProducto = async (id, productoData) => {
     throw error;
   }
 };
-
 // Eliminar un producto
 export const deleteProducto = async (id) => {
   try {

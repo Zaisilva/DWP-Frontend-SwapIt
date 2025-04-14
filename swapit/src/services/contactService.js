@@ -1,7 +1,6 @@
 import api from './api';
 import { message } from 'antd';
 
-// Send contact form data to backend
 export const sendContactForm = async (contactData) => {
   try {
     const response = await api.post('/contact', contactData);
@@ -10,7 +9,6 @@ export const sendContactForm = async (contactData) => {
   } catch (error) {
     console.error('Error al enviar mensaje de contacto:', error);
     
-    // Handle specific error messages from backend
     if (error.response?.data?.error) {
       message.error(error.response.data.error);
     } else {

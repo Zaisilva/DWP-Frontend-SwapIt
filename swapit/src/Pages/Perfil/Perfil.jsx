@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { message, Spin } from 'antd';
+import { message, Spin, Button } from 'antd';
+import { ShopOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import ProfileForm from './Components/ProfileForm';
-import ProfileCard from '../../Components/UI/ProfileCard';
+import ProfileCard from '../../Components/Cards/ProfileCard';
 import { fetchUserProfile, updateUserProfile, updatePassword } from '../../services/profileService';
 
 const ProfilePage = () => {
@@ -9,6 +11,7 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getUserProfile = async () => {
@@ -71,6 +74,10 @@ const ProfilePage = () => {
     message.success('Sesión cerrada correctamente');
   };
 
+  const handleVerPublicaciones = () => {
+    navigate('/mis-publicaciones');
+  };
+
   if (loading) {
     return (
       <div style={styles.loadingContainer}>
@@ -81,13 +88,24 @@ const ProfilePage = () => {
 
   return (
     <div style={styles.container}>
-      <ProfileCard 
-        name={`${userData?.nombre || ''} ${userData?.apellido || ''}`}
-        location={userData?.direccion}
-        estado={userData?.estado}
-        rating={5}
-        onLogout={handleLogout}
-      />
+      <div style={styles.leftColumn}>
+        <ProfileCard 
+          name={`${userData?.nombre || ''} ${userData?.apellido || ''}`}
+          location={userData?.direccion}
+          estado={userData?.estado}
+          rating={5}
+          onLogout={handleLogout}
+        />
+        <Button
+          type="primary"
+          size="large"
+          icon={<ShopOutlined />}
+          onClick={handleVerPublicaciones}
+          style={styles.publicacionesButton}
+        >
+          Ver Mis Publicaciones
+        </Button>
+      </div>
       <ProfileForm 
         userData={userData}
         onSubmit={handleSubmit} 
@@ -109,11 +127,24 @@ const styles = {
     maxWidth: '1200px',
     margin: '40px auto',
   },
+  leftColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px',
+  },
   loadingContainer: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     height: '60vh',
+  },
+  publicacionesButton: {
+    width: '100%',
+    height: '50px',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
   }
 };
 

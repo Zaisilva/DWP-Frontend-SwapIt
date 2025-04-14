@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { message } from 'antd';
 
-const API_URL = 'http://localhost:5000/api';
-export const BASE_URL = 'http://localhost:5000'; // URL base para imágenes
+const API_URL = 'https://dwp-backend-swapit.onrender.com/api';
+export const BASE_URL = 'https://dwp-backend-swapit.onrender.com';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -10,7 +10,6 @@ const api = axios.create({
     'Content-Type': 'application/json'
   }
 });
-
 api.interceptors.response.use(
   (response) => response,
   (error) => {

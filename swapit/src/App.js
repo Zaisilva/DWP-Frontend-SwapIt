@@ -13,6 +13,7 @@ import Perfil from './Pages/Perfil/Perfil';
 import Contactanos from './Pages/Contactanos/Contactanos';
 import { Modal } from 'antd';
 import { isAuthenticated } from './services/authService';
+import MisProductos from './Pages/Perfil/Components/MisProductos';
 
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
@@ -158,6 +159,14 @@ function App() {
           <ProtectedRoute>
             <MainLayout>
               <Comunidad />
+            </MainLayout>
+          </ProtectedRoute>
+        } />
+                {/* Rutas protegidas */}
+        <Route path="/mis-publicaciones" element={
+          <ProtectedRoute>
+            <MainLayout>
+              <MisProductos />
             </MainLayout>
           </ProtectedRoute>
         } />

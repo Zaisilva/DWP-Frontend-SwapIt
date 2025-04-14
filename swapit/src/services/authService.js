@@ -20,8 +20,7 @@
     }
   };
 
-
-    export const onRegister = async (values, navigate) => {
+  export const onRegister = async (values, navigate) => {
       try {
         await api.post('/auth/register', values);
         message.success('¡Usuario registrado exitosamente!');
@@ -38,9 +37,9 @@
           message.error('Error en el registro. Por favor, intenta de nuevo');
         }
       }
-    };
+  };
 
-    export const onLogin = async (values, navigate, from = '/explorar') => {
+  export const onLogin = async (values, navigate, from = '/explorar') => {
       try {
         const response = await api.post('/auth/login', {
           email: values.username,
@@ -67,12 +66,12 @@
         }
         throw error;
       }
-    };
+  };
 
-    export const onLogout = (navigate) => {
+  export const onLogout = (navigate) => {
       localStorage.removeItem('token');
       localStorage.removeItem('userData');
       
       navigate('/login', { replace: true });
       message.success('Sesión cerrada correctamente');
-    };
+  };

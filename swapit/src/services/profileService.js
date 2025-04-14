@@ -1,4 +1,3 @@
-// services/profileService.js
 import api from './api';
 
 export const fetchUserProfile = async () => {

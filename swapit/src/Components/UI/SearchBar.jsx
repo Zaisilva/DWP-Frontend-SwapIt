@@ -5,11 +5,8 @@ import { Search } from 'lucide-react';
 function SearchBar({ onSearch, autoFilter = false }) {
   const [isFocused, setIsFocused] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // Efecto para manejar el filtrado automático
-  useEffect(() => {
+    useEffect(() => {
     if (autoFilter) {
-      // Añadir un pequeño retraso para evitar demasiadas solicitudes mientras se escribe
       const delayDebounceFn = setTimeout(() => {
         onSearch && onSearch(searchTerm);
       }, 300);
@@ -20,7 +17,6 @@ function SearchBar({ onSearch, autoFilter = false }) {
   
   const handleSearch = (e) => {
     e.preventDefault();
-    // Solo ejecutar la búsqueda manual si no está en modo automático
     if (!autoFilter && onSearch) {
       onSearch(searchTerm);
     }

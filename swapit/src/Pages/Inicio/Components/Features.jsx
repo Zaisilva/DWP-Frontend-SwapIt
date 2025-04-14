@@ -1,9 +1,9 @@
 import React from 'react';
 import FeatureCard from './FeatureCard';
 import { FaShieldAlt, FaHandHoldingUsd, FaUserFriends, FaLeaf } from 'react-icons/fa';
-
 const Features = () => (
-  <section style={{
+  <section 
+  style={{
     padding: '5rem 2rem',
     background: '#fafafa',
     maxWidth: '1200px',
@@ -30,7 +30,8 @@ const Features = () => (
         borderRadius: '2px'
       }}></span>
     </h2>
-    <div style={{
+    <div 
+    style={{
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
       gap: '2rem',

@@ -9,7 +9,6 @@ function LocationBar({ onLocationSelect }) {
   const [filteredLocations, setFilteredLocations] = useState([]);
   const dropdownRef = useRef(null);
 
-  // Lista de estados de México con sus abreviaturas
   const mexicoLocations = [
     { name: 'Aguascalientes', abbr: 'Ags' },
     { name: 'Baja California', abbr: 'BC' },
@@ -46,7 +45,6 @@ function LocationBar({ onLocationSelect }) {
   ];
 
   useEffect(() => {
-    // Cargar ubicación guardada al iniciar
     const savedLocation = localStorage.getItem('userLocation');
     if (savedLocation) {
       setSelectedLocation(savedLocation);
@@ -54,7 +52,6 @@ function LocationBar({ onLocationSelect }) {
   }, []);
 
   useEffect(() => {
-    // Filtrar ubicaciones basadas en el término de búsqueda
     if (searchTerm.trim() === '') {
       setFilteredLocations(mexicoLocations);
     } else {
@@ -66,8 +63,7 @@ function LocationBar({ onLocationSelect }) {
   }, [searchTerm]);
 
   useEffect(() => {
-    // Cerrar el dropdown cuando se hace clic fuera de él
-    function handleClickOutside(event) {
+   function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
@@ -84,10 +80,8 @@ function LocationBar({ onLocationSelect }) {
     setSelectedLocation(locationString);
     setIsOpen(false);
     
-    // Guardar en localStorage
     localStorage.setItem('userLocation', locationString);
     
-    // Notificar al componente padre sobre el cambio de ubicación
     if (onLocationSelect) {
       onLocationSelect(location.name);
     }

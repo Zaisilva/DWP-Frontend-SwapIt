@@ -14,18 +14,14 @@ const Publicar = () => {
     setSubmitError('');
     
     try {
-      // Usamos el servicio para crear el producto
-      await createProducto(data);
+     await createProducto(data);
       
       setSubmitSuccess(true);
-      
-      // Después de 2 segundos, redirigir al usuario a sus productos
-      setTimeout(() => {
+            setTimeout(() => {
         navigate('/mis-productos');
       }, 2000);
     } catch (error) {
-      // El manejo de errores ya se hace en el servicio,
-      // pero podemos establecer un mensaje personalizado aquí si es necesario
+
       setSubmitError('No se pudo publicar tu producto. Por favor, verifica los datos e intenta de nuevo.');
     } finally {
       setIsSubmitting(false);

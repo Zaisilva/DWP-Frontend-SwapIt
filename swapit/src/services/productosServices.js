@@ -92,6 +92,9 @@ function getUserIdFromToken() {
 // Fix for updateProducto service function
 export const updateProducto = async (id, productoData) => {
   try {
+    console.log('Iniciando actualización del producto', id);
+    console.log('Datos enviados:', productoData);
+    
     // Preparar los datos para enviar al servidor
     const formData = new FormData();
     
@@ -102,7 +105,7 @@ export const updateProducto = async (id, productoData) => {
     formData.append('estado', productoData.estado);
     formData.append('intercambioPor', productoData.intercambioPor || '');
     
-    // Añadir datos de ubicación - corregir el formato según el API
+    // Añadir datos de ubicación
     formData.append('ubicacion[ciudad]', productoData.ubicacion.ciudad);
     formData.append('ubicacion[estado]', productoData.ubicacion.estado);
     
@@ -122,25 +125,23 @@ export const updateProducto = async (id, productoData) => {
       formData.append('imagenesExistentes', JSON.stringify(productoData.imagenesExistentes));
     }
     
-    // Asegurar que el token de autenticación esté incluido en todas las solicitudes
-    const token = localStorage.getItem('authToken'); // Asumiendo que guardas el token así
+    console.log('FormData preparado, enviando solicitud...');
     
     const response = await api.put(`/productos/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-        // Si no tienes un interceptor configurado, agrega la autorización aquí
-        // 'Authorization': `Bearer ${token}`
       },
     });
     
+    console.log('Respuesta recibida:', response.data);
     message.success('¡Producto actualizado exitosamente!');
     return response.data;
   } catch (error) {
-    // Verificar si el error es de autenticación (401)
-    if (error.response && error.response.status === 401) {
-      message.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-      // Aquí podrías redirigir al usuario a la página de login
-      // Ejemplo: window.location.href = '/login';
+    console.error('Error detallado al actualizar producto:', error);
+    console.error('Response data:', error.response?.data);
+    
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      message.error('Error de autenticación. Por favor, vuelve a iniciar sesión.');
     } else if (error.response?.data?.mensaje) {
       message.error(error.response.data.mensaje);
     } else {
@@ -150,14 +151,23 @@ export const updateProducto = async (id, productoData) => {
   }
 };
 // Eliminar un producto
+// En productosServices.js
 export const deleteProducto = async (id) => {
   try {
-    await api.delete(`/productos/${id}`);
+    console.log('Iniciando eliminación del producto', id);
+    const response = await api.delete(`/productos/${id}`);
+    console.log('Respuesta de eliminación:', response.data);
     message.success('Producto eliminado correctamente');
     return true;
   } catch (error) {
-    console.error('Error al eliminar producto:', error);
-    message.error('No se pudo eliminar el producto');
+    console.error('Error detallado al eliminar producto:', error);
+    console.error('Response data:', error.response?.data);
+    
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      message.error('Error de autenticación. Por favor, vuelve a iniciar sesión.');
+    } else {
+      message.error('No se pudo eliminar el producto: ' + (error.response?.data?.mensaje || error.message));
+    }
     throw error;
   }
 };
@@ -437,26 +447,31 @@ export const getEstadosMexico = () => {
       throw error;
     }
   };
-  // Eliminar un comentario
-  export const deleteComentario = async (comentarioId) => {
-    try {
-      const userId = getUserIdFromToken();
-      console.log('User ID attempting to delete comment:', userId);
-      
-      await api.delete(`/productos/comentarios/${comentarioId}`);
-      message.success('Comentario eliminado correctamente');
-      return true;
-    } catch (error) {
-      console.error('Error al eliminar comentario:', error);
-      if (error.response?.status === 403) {
-        message.error('No tienes permiso para eliminar este comentario');
-      } else {
-        message.error('No se pudo eliminar el comentario');
-      }
-      throw error;
+  // Eliminar un coment
+  // En productosServices.js, modifica la función deleteComentario
+export const deleteComentario = async (comentarioId) => {
+  try {
+    const userId = getUserIdFromToken();
+    console.log('User ID attempting to delete comment:', userId);
+    console.log('Comment ID to delete:', comentarioId);
+    
+    const response = await api.delete(`/productos/comentarios/${comentarioId}`);
+    console.log('Delete comment response:', response);
+    message.success('Comentario eliminado correctamente');
+    return true;
+  } catch (error) {
+    console.error('Error al eliminar comentario:', error);
+    console.error('Response data:', error.response?.data);
+    
+    if (error.response?.status === 403) {
+      message.error('No tienes permiso para eliminar este comentario');
+    } else {
+      message.error('No se pudo eliminar el comentario: ' + (error.response?.data?.mensaje || error.message));
     }
-  };
-  // Eliminar una respuesta
+    throw error;
+  }
+};
+  //   // Eliminar una respuesta
   export const deleteRespuesta = async (comentarioId, respuestaId) => {
     try {
       const userId = getUserIdFromToken();

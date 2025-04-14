@@ -74,22 +74,45 @@ const MisProductos = () => {
   };
 
   const handleEliminar = (id, estaIntercambiado) => {
-    confirm({
+    console.log('handleEliminar llamado para producto ID:', id);
+    
+    Modal.confirm({
       title: '¿Estás seguro de eliminar este producto?',
       icon: <ExclamationCircleOutlined />,
       content: estaIntercambiado 
         ? 'Este producto ya ha sido intercambiado. ¿Deseas eliminarlo de tu historial?' 
         : '¿Quieres eliminar este producto o marcarlo como intercambiado?',
-      okText: 'Eliminar',
+      okText: 'Sí, eliminar',
       okType: 'danger',
       cancelText: 'Cancelar',
+      onOk: () => {
+        console.log('Confirmación de eliminación para producto ID:', id);
+        message.loading('Eliminando producto...', 1);
+        
+        // Usar setTimeout para asegurar que el mensaje de carga se muestre
+        setTimeout(async () => {
+          try {
+            await deleteProducto(id);
+            console.log('Producto eliminado exitosamente, actualizando lista');
+            setProductos(prevProductos => prevProductos.filter(p => p._id !== id));
+            message.success('Producto eliminado correctamente');
+          } catch (error) {
+            console.error('Error en la eliminación:', error);
+            message.error('No se pudo eliminar el producto');
+          }
+        }, 500);
+      },
       footer: (_, { OkBtn, CancelBtn }) => (
         <>
           <CancelBtn />
           {!estaIntercambiado && (
             <Button 
               icon={<SwapOutlined />} 
-              onClick={() => handleMarcarIntercambiado(id)}
+              onClick={() => {
+                Modal.destroyAll();
+                console.log('Botón de marcar como intercambiado presionado');
+                handleMarcarIntercambiado(id);
+              }}
               style={{ marginRight: 8 }}
             >
               Marcar como intercambiado
@@ -98,15 +121,6 @@ const MisProductos = () => {
           <OkBtn />
         </>
       ),
-      onOk: async () => {
-        try {
-          await deleteProducto(id);
-          // Actualizar la lista después de eliminar
-          setProductos(productos.filter(producto => producto._id !== id));
-        } catch (error) {
-          console.error('Error al eliminar producto:', error);
-        }
-      },
     });
   };
 

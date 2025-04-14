@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import styles from './RegisterForm.module.css';
+import styles from '../../Styles/RegisterForm.module.css';
 import FormInput from '../../../Components/UI/FormInput';
 import Button from '../../../Components/UI/buttons';
 import ErrorMessage from '../../../Components/UI/ErrorMessage';
@@ -12,6 +12,7 @@ const RegisterForm = ({ onSubmit, loading, error }) => {
     apellido: '',
     estado: '',
     direccion: '',
+    telefono: '', // Added phone field to state
     email: '',
     password: ''
   });
@@ -28,8 +29,8 @@ const RegisterForm = ({ onSubmit, loading, error }) => {
 
   return (
     <div className={styles.formWrapper}>
-      <form onSubmit={handleSubmit} className={styles.registerForm}>        
-        <div className={styles.formRow}>
+      <form onSubmit={handleSubmit} className={styles.loginForm}>        
+        <div className={styles.formGroup}>
           <FormInput
             id="nombre"
             name="nombre"
@@ -39,7 +40,9 @@ const RegisterForm = ({ onSubmit, loading, error }) => {
             placeholder="Nombre"
             required
           />
+        </div>
 
+        <div className={styles.formGroup}>
           <FormInput
             id="apellido"
             name="apellido"
@@ -51,7 +54,7 @@ const RegisterForm = ({ onSubmit, loading, error }) => {
           />
         </div>
 
-        <div className={styles.formRow}>
+        <div className={styles.formGroup}>
           <FormInput
             id="estado"
             name="estado"
@@ -61,7 +64,9 @@ const RegisterForm = ({ onSubmit, loading, error }) => {
             placeholder="Estado"
             required
           />
+        </div>
 
+        <div className={styles.formGroup}>
           <FormInput
             id="direccion"
             name="direccion"
@@ -73,43 +78,62 @@ const RegisterForm = ({ onSubmit, loading, error }) => {
           />
         </div>
 
-        <FormInput
-          id="email"
-          name="email"
-          label="Email"
-          type="email"
-          value={userData.email}
-          onChange={handleChange}
-          placeholder="correo@ejemplo.com"
-          required
-        />
+        <div className={styles.formGroup}>
+          <FormInput
+            id="telefono"
+            name="telefono"
+            label="Teléfono"
+            type="tel"
+            value={userData.telefono}
+            onChange={handleChange}
+            placeholder="(123) 456-7890"
+            required
+          />
+        </div>
 
-        <FormInput
-          id="password"
-          name="password"
-          label="Password"
-          type="password"
-          value={userData.password}
-          onChange={handleChange}
-          placeholder="••••••••"
-          required
-        />
+        <div className={styles.formGroup}>
+          <FormInput
+            id="email"
+            name="email"
+            label="Email"
+            type="email"
+            value={userData.email}
+            onChange={handleChange}
+            placeholder="correo@ejemplo.com"
+            required
+          />
+        </div>
 
-        <ErrorMessage message={error} />
+        <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+          <FormInput
+            id="password"
+            name="password"
+            label="Password"
+            type="password"
+            value={userData.password}
+            onChange={handleChange}
+            placeholder="••••••••"
+            required
+          />
+        </div>
 
-        <div className={styles.buttonContainer}>
+        <div className={styles.fullWidth}>
+          <ErrorMessage message={error} />
+        </div>
+
+        <div className={`${styles.buttonContainer} ${styles.fullWidth}`}>
           <Button 
             type="submit" 
             disabled={loading}
-            className={styles.registerButton}
+            className={styles.loginButton}
           >
             {loading ? <LoadingDots /> : 'Registrarse'}
           </Button>
         </div>
 
-        <div className={styles.loginContainer}>
+        <div className={`${styles.registerContainer} ${styles.fullWidth}`}>
           <span>¿Ya tienes cuenta? </span>
-          <Link to="/login" className={styles.loginLink}>Inicia Sesión</Link>
+          <Link to="/login" className={styles.registerLink}>Inicia Sesión</Link>
         </div>
       </form>
     </div>

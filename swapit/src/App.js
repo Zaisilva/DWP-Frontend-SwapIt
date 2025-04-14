@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import MainLayout from './Layouts/MainLayout';
 import Login from './Pages/Login/Login';
 import Register from './Pages/Register/Register'; 
@@ -9,84 +9,194 @@ import Error from './Pages/Error/Error';
 import Explorar from './Pages/Explorar/Explorar';
 import Producto from './Pages/Producto/Producto';
 import Publicar from './Pages/Publicar/Publicar';
-import Perfil from './Pages/Perfil/Perfil'
+import Perfil from './Pages/Perfil/Perfil';
 import Contactanos from './Pages/Contactanos/Contactanos';
-/*const isAuthenticated = () => {
-  return !!localStorage.getItem('token');
-};*/ 
+import { Modal } from 'antd';
+import { isAuthenticated } from './services/authService';
 
-/*const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      setIsModalOpen(true);
+    }
+  }, []);
+  
+  const handleModalOk = () => {
+    setIsModalOpen(false);
+    navigate('/login', { state: { from: location } });
+  };
+  
+  const handleModalCancel = () => {
+    setIsModalOpen(false);
+    navigate('/inicio', { replace: true });
+  };
+  
   if (!isAuthenticated()) {
-    return <Navigate to="/inicio" replace />;
+    return (
+      <>
+        <Modal
+          title={<div style={{ textAlign: 'center', fontSize: '22px', fontWeight: '500', color: '#20b2aa' }}>
+            ¡Bienvenido a SwapIt!
+          </div>}
+          open={isModalOpen}
+          onOk={handleModalOk}
+          okText="Iniciar sesión"
+          cancelText="Ir a inicio"
+          onCancel={handleModalCancel}
+          maskClosable={false}
+          centered
+          width={450}
+          bodyStyle={{ padding: '30px 24px' }}
+          okButtonProps={{ 
+            style: { background: '#1b2a41', borderColor: '#1b2a41', fontWeight: '500' } 
+          }}
+          cancelButtonProps={{
+            style: { fontWeight: '500' }
+          }}
+          style={{ borderRadius: '12px', overflow: 'hidden' }}
+        >
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center',
+            textAlign: 'center'
+          }}>
+            <div style={{ 
+              fontSize: '52px', 
+              marginBottom: '20px' 
+            }}>
+              👋
+            </div>
+            <p style={{ 
+              fontSize: '17px', 
+              marginBottom: '16px',
+              color: '#333',
+              lineHeight: '1.5'
+            }}>
+              Para disfrutar de todas las funcionalidades y seguir explorando nuestro contenido, te invitamos a unirte a nuestra comunidad
+            </p>
+            <p style={{ 
+              fontSize: '15px', 
+              color: '#666',
+              marginBottom: '5px',
+              fontStyle: 'italic'
+            }}>
+              Únete ahora y descubre todo lo que tenemos para ti
+            </p>
+          </div>
+        </Modal>
+        <MainLayout>
+          <div style={{ height: '70vh', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+            <div style={{ fontSize: '24px', marginBottom: '16px', color: '#4CAF50' }}>✨</div>
+            <p>Preparando tu experiencia...</p>
+          </div>
+        </MainLayout>
+      </>
+    );
   }
+  
   return children;
-};*/
+};
+
+// Componente para rutas solo accesibles cuando NO estás autenticado
+const AuthRoute = ({ children }) => {
+  const navigate = useNavigate();
+  
+  React.useEffect(() => {
+    if (isAuthenticated()) {
+      // Si hay una ruta guardada para redirección, usa esa
+      const redirectPath = localStorage.getItem('redirectAfterLogin') || '/explorar';
+      localStorage.removeItem('redirectAfterLogin'); // Limpia después de usar
+      navigate(redirectPath, { replace: true });
+    }
+  }, [navigate]);
+  
+  if (isAuthenticated()) {
+    return null; // No renderiza nada mientras se redirige
+  }
+  
+  return children;
+};
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Rutas públicas */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-
-        {/* Redirigir la ruta raíz a /inicio */}
-        <Route path="/" element={<Navigate to="/inicio" replace />} />
-
-        {/* Rutas protegidas (comentadas por ahora) */}
-        <Route path="/inicio" element={
-          // <ProtectedRoute>
-            <MainLayout>
-              <Inicio />
-            </MainLayout>
-          // </ProtectedRoute>
+        {/* Rutas de autenticación */}
+        <Route path="/login" element={
+          <AuthRoute>
+            <Login />
+          </AuthRoute>
         } />
-
+        <Route path="/register" element={
+          <AuthRoute>
+            <Register />
+          </AuthRoute>
+        } />
+        
+        {/* Rutas públicas */}
+        <Route path="/" element={<Navigate to="/inicio" replace />} />
+        
+        <Route path="/inicio" element={
+          <MainLayout>
+            <Inicio />
+          </MainLayout>
+        } />
+        
+        <Route path="/contactanos" element={
+          <MainLayout>
+            <Contactanos />
+          </MainLayout>
+        } />
+        
+        {/* Rutas protegidas */}
         <Route path="/comunidad" element={
-          // <ProtectedRoute>
+          <ProtectedRoute>
             <MainLayout>
               <Comunidad />
             </MainLayout>
-          // </ProtectedRoute>
+          </ProtectedRoute>
         } />
-           <Route path="/explorar" element={
-          // <ProtectedRoute>
+        
+        <Route path="/explorar" element={
+          <ProtectedRoute>
             <MainLayout>
               <Explorar />
             </MainLayout>
-          // </ProtectedRoute>
+          </ProtectedRoute>
         } />
-                <Route path="/producto" element={
-          // <ProtectedRoute>
+        
+        {/* Ruta actualizada para producto con parámetro ID */}
+        <Route path="/producto/:id?" element={
+          <ProtectedRoute>
             <MainLayout>
               <Producto />
             </MainLayout>
-          // </ProtectedRoute>
+          </ProtectedRoute>
         } />
-       <Route path="/publicar" element={
-          // <ProtectedRoute>
+        
+        <Route path="/publicar" element={
+          <ProtectedRoute>
             <MainLayout>
               <Publicar />
             </MainLayout>
-          // </ProtectedRoute>
+          </ProtectedRoute>
         } />
-               <Route path="/perfil" element={
-          // <ProtectedRoute>
+        
+        <Route path="/perfil" element={
+          <ProtectedRoute>
             <MainLayout>
               <Perfil />
             </MainLayout>
-          // </ProtectedRoute>
+          </ProtectedRoute>
         } />
-               <Route path="/contactanos" element={
-          // <ProtectedRoute>
-            <MainLayout>
-              <Contactanos />
-            </MainLayout>
-          // </ProtectedRoute>
-        } />
-        {/* Ruta de error */}
+        
+        {/* Rutas de error */}
         <Route path="/error" element={<Error />} />
-        {/* Ruta no encontrada */}
         <Route path="*" element={<Navigate to="/error" replace />} />
       </Routes>
     </Router>

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { getCommunityData } from '../../services/communityService';
 import CommunityHeader from './Components/CommunityHeader';
 import CommunityContent from './Components/CommunityContent';
 import CommunityAction from './Components/CommunityAction';
@@ -9,21 +8,7 @@ const Comunidad = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchCommunityData = async () => {
-      try {
-        setLoading(true);
-        const data = await getCommunityData();
-        setCommunityData(data);
-      } catch (err) {
-        setError('Error al cargar los datos de la comunidad');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCommunityData();
-  }, []);
+ 
 
   if (loading) return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
   if (error) return <div className="flex justify-center items-center min-h-screen text-red-500">{error}</div>;

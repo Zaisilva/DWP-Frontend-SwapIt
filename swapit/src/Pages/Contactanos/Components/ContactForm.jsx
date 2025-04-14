@@ -1,13 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Button from '../../../Components/UI/buttons';
 
-const ContactForm = ({ onSubmit, loading }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: '',
-  });
-
+const ContactForm = ({ onSubmit, loading, formData, setFormData }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -22,7 +16,7 @@ const ContactForm = ({ onSubmit, loading }) => {
     <form onSubmit={handleSubmit} style={styles.container}>
       {/* Título */}
       <div style={styles.header}>
-        <h3 style={styles.headerText}>Contáctanos</h3>
+        <h3 style={styles.headerText}>Escríbenos</h3>
       </div>
 
       {/* Inputs */}
@@ -74,34 +68,36 @@ const ContactForm = ({ onSubmit, loading }) => {
   );
 };
 
+// styles remain unchanged
 const styles = {
   container: {
     width: '400px',
-    padding: '24px',
+    padding: '35px 24px 24px',
     borderRadius: '16px',
-    border: '2px solid #2a9d8f',
+    border: '2px solid #20b2aa',
     backgroundColor: '#fafafa',
-    boxShadow: '0 6px 12px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.1)',
     margin: '0 auto',
     position: 'relative',
   },
   header: {
     backgroundColor: '#1b2a41',
-    padding: '12px',
-    borderTopLeftRadius: '16px',
-    borderTopRightRadius: '16px',
+    padding: '12px 20px',
+    borderRadius: '30px',
     position: 'absolute',
-    top: '-20px',
+    top: '-22px',
     left: '50%',
     transform: 'translateX(-50%)',
-    width: '80%',
+    minWidth: '180px',
     textAlign: 'center',
+    boxShadow: '0 4px 10px rgba(27, 42, 65, 0.3)',
   },
   headerText: {
     color: '#fff',
     fontSize: '18px',
     fontWeight: 'bold',
     margin: 0,
+    letterSpacing: '0.5px',
   },
   inputContainer: {
     marginBottom: '16px',

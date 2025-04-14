@@ -1,0 +1,85 @@
+/* Inherit styles from LoginForm */
+.formWrapper {
+  width: 100%;
+  max-width: 720px; /* Wider to accommodate two columns */
+}
+
+.loginForm {
+  border: 2px solid #20b2aa;
+  border-radius: 20px;
+  padding: 2.5rem;
+  background-color: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.loginForm:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+/* Make certain elements span both columns */
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.formRow {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Inherit other styles from LoginForm */
+.buttonContainer {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+}
+
+.loginButton {
+  padding: 0.75rem 2.5rem;
+  background-color: #20b2aa;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 0.95rem;
+  transition: background-color 0.2s, transform 0.1s;
+  min-width: 180px;
+  box-shadow: 0 2px 8px rgba(32, 178, 170, 0.25);
+}
+
+.registerContainer {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.registerLink {
+  color: #1a2a3a;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .loginForm {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+  }
+  
+  .fullWidth {
+    grid-column: auto;
+  }
+}

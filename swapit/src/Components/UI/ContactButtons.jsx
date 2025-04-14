@@ -1,20 +1,20 @@
 import React from 'react';
 import { Mail, Phone, MessageCircle } from 'lucide-react';
 
-const ContactButtons = () => {
+const ContactButtons = ({ usuarioId, itemTitle, usuarioEmail, usuarioNombre, usuarioTelefono, itemData }) => {
   const styles = {
     contactButtonsContainer: {
       display: 'flex',
       justifyContent: 'center',
       padding: '10px',
-      margin: '20px auto',
-      maxWidth: '600px',
+      margin: '10px 0',
+      width: '100%',
     },
     contactButtons: {
       display: 'flex',
-      justifyContent: 'center',
-      gap: '25px',
-      padding: '20px',
+      justifyContent: 'space-between',
+      gap: '10px',
+      padding: '15px',
       border: '1px solid rgba(63, 209, 193, 0.3)',
       borderRadius: '16px',
       backgroundColor: '#ffffff',
@@ -29,30 +29,31 @@ const ContactButtons = () => {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      padding: '12px 15px',
+      padding: '8px',
       borderRadius: '12px',
       transition: 'all 0.3s ease',
       textDecoration: 'none',
-      width: '100px',
+      flex: '1',
+      minWidth: '70px',
     },
     iconContainer: {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: '#f0fdfa',
-      width: '56px',
-      height: '56px',
+      width: '48px',
+      height: '48px',
       borderRadius: '50%',
-      marginBottom: '10px',
+      marginBottom: '8px',
       transition: 'all 0.3s ease',
       boxShadow: '0 2px 8px rgba(63, 209, 193, 0.2)',
       border: '1px solid rgba(63, 209, 193, 0.2)',
     },
     iconLabel: {
-      fontSize: '14px',
+      fontSize: '13px',
       fontWeight: '600',
       color: '#4a5568',
-      marginTop: '5px',
+      marginTop: '3px',
       fontFamily: '"Nunito", "Segoe UI", sans-serif',
       letterSpacing: '0.3px',
       textAlign: 'center',
@@ -88,41 +89,94 @@ const ContactButtons = () => {
     label.style.color = '#4a5568';
   };
 
+  // Siempre usar el email real del usuario que publicó el artículo
+  const email = usuarioEmail || (itemData?.usuario?.email) || "contacto@swapit.com";
+  
+  // Usar el teléfono real del usuario si está disponible, o generar uno basado en el ID
+  const phone = usuarioTelefono || (itemData?.usuario?.telefono) || (usuarioId ? `+34${usuarioId.slice(-9)}` : '+34123456789');
+  
+  // Para WhatsApp, eliminar el "+" si existe
+  const whatsapp = phone.replace(/^\+/, '');
+  
+  // Obtener datos del artículo para personalizar los mensajes
+  const publicationTitle = itemTitle || (itemData?.titulo) || "tu publicación";
+  const sellerName = usuarioNombre || (itemData?.autor) || (itemData?.usuario?.nombre) || "Vendedor";
+  const itemCategory = itemData?.categoria || "artículo";
+  const exchangeFor = itemData?.cambiadoPor || "";
+  const itemCondition = itemData?.estado || "";
+  
+  // Mensaje para correo electrónico (codificado para URL)
+  const emailSubject = encodeURIComponent(`Consulta sobre: ${publicationTitle}`);
+  
+  // Cuerpo del email con detalles del producto
+  let emailBody = `Hola ${sellerName},\n\nVi tu publicación "${publicationTitle}" y estoy interesado/a.`;
+  
+  // Agregar detalles específicos si están disponibles
+  if (exchangeFor) {
+    emailBody += `\n\nVi que lo quieres intercambiar por "${exchangeFor}". Tengo algo similar que podría interesarte.`;
+  }
+  
+  // Cierre del mensaje
+  emailBody += `\n\n¿Podrías darme más información sobre este ${itemCategory.toLowerCase()}? ¿Está disponible todavía?\n\nGracias por tu tiempo.`;
+  
+  // Codificar el cuerpo del mensaje para URL
+  const encodedEmailBody = encodeURIComponent(emailBody);
+  
+  // Mensaje para WhatsApp (codificado para URL)
+  let whatsappMessage = `Hola ${sellerName}, vi tu publicación "${publicationTitle}" y me interesa.`;
+  
+  if (itemCondition) {
+    whatsappMessage += ` Veo que está en estado "${itemCondition}".`;
+  }
+  
+  whatsappMessage += " ¿Está disponible todavía?";
+  
+  const encodedWhatsappMessage = encodeURIComponent(whatsappMessage);
+
+  // Debug: verificar que estamos usando el email correcto
+  console.log("Using seller email:", email);
+  console.log("Using seller phone:", phone);
+  console.log("Using seller whatsapp:", whatsapp);
+
   return (
     <div style={styles.contactButtonsContainer}>
       <div style={styles.contactButtons}>
         <a 
-          href="mailto:contacto@empresa.com" 
+          href={`mailto:${email}?subject=${emailSubject}&body=${encodedEmailBody}`}
           style={styles.contactButton}
           onMouseOver={handleMouseOver}
           onMouseOut={handleMouseOut}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <div className="icon-container" style={styles.iconContainer}>
-            <Mail size={22} strokeWidth={2} />
+            <Mail size={20} strokeWidth={2} />
           </div>
           <span className="icon-label" style={styles.iconLabel}>Email</span>
         </a>
         
         <a 
-          href="tel:+123456789" 
+          href={`tel:${phone}`}
           style={styles.contactButton}
           onMouseOver={handleMouseOver}
           onMouseOut={handleMouseOut}
         >
           <div className="icon-container" style={styles.iconContainer}>
-            <Phone size={22} strokeWidth={2} />
+            <Phone size={20} strokeWidth={2} />
           </div>
           <span className="icon-label" style={styles.iconLabel}>Llamar</span>
         </a>
         
         <a 
-          href="https://wa.me/123456789" 
+          href={`https://wa.me/${whatsapp}?text=${encodedWhatsappMessage}`}
           style={styles.contactButton}
           onMouseOver={handleMouseOver}
           onMouseOut={handleMouseOut}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <div className="icon-container" style={styles.iconContainer}>
-            <MessageCircle size={22} strokeWidth={2} />
+            <MessageCircle size={20} strokeWidth={2} />
           </div>
           <span className="icon-label" style={styles.iconLabel}>WhatsApp</span>
         </a>

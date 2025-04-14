@@ -1,61 +1,98 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 
-function SearchBar() {
+function SearchBar({ onSearch, autoFilter = false }) {
   const [isFocused, setIsFocused] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Efecto para manejar el filtrado automático
+  useEffect(() => {
+    if (autoFilter) {
+      // Añadir un pequeño retraso para evitar demasiadas solicitudes mientras se escribe
+      const delayDebounceFn = setTimeout(() => {
+        onSearch && onSearch(searchTerm);
+      }, 300);
+      
+      return () => clearTimeout(delayDebounceFn);
+    }
+  }, [searchTerm, autoFilter, onSearch]);
+  
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // Solo ejecutar la búsqueda manual si no está en modo automático
+    if (!autoFilter && onSearch) {
+      onSearch(searchTerm);
+    }
+  };
+  
+  const handleInputChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
   
   return (
-    <div style={{
-      ...styles.searchContainer,
-      borderColor: isFocused ? '#3498db' : '#dddddd',
-      boxShadow: isFocused ? '0 0 0 2px rgba(52, 152, 219, 0.2)' : 'none'
-    }}>
-      <input 
-        type="text" 
-        style={styles.searchInput}
-        placeholder="Buscar..." 
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-      />
-      <button style={styles.searchButton}>
-        <Search 
-          size={20} 
-          color="#3498db" 
+    <form onSubmit={handleSearch} style={styles.searchForm}>
+      <div style={{
+        ...styles.searchContainer,
+        borderColor: isFocused ? '#2a9d8f' : '#e6f2f0',
+        boxShadow: isFocused ? '0 0 0 2px rgba(42, 157, 143, 0.2)' : 'none'
+      }}>
+        <input 
+          type="text" 
+          style={styles.searchInput}
+          placeholder="Buscar productos para intercambiar..." 
+          value={searchTerm}
+          onChange={handleInputChange}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
         />
-      </button>
-    </div>
+        <button type="submit" style={styles.searchButton}>
+          <Search 
+            size={20} 
+            color="#2a9d8f" 
+          />
+        </button>
+      </div>
+    </form>
   );
 }
 
+// Styles remain unchanged
 const styles = {
+  searchForm: {
+    width: '100%',
+  },
   searchContainer: {
     display: 'flex',
     marginBottom: '20px',
-    border: '1px solid #dddddd',
+    border: '1px solid #e6f2f0',
     borderRadius: '8px',
     overflow: 'hidden',
     transition: 'all 0.3s ease',
+    backgroundColor: 'white',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
   },
   searchInput: {
     flexGrow: 1,
-    padding: '12px 15px',
+    padding: '14px 18px',
     border: 'none',
     outline: 'none',
     fontSize: '15px',
     color: '#2c3e50',
+    backgroundColor: 'transparent',
   },
   searchButton: {
     backgroundColor: 'white',
     border: 'none',
-    padding: '0 15px',
+    padding: '0 18px',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     transition: 'background-color 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8f9fa',
+    height: '48px',
+    '&:hover': {
+      backgroundColor: '#f0f9f8',
     }
   },
 };

@@ -1,23 +1,29 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import LoginForm from './Components/LoginForm';
 import Header from '../../Layouts/Header';
-import { loginUser } from '../../services/authService';
-import styles from './Login.module.css';
+import styles from '../Styles/Login.module.css';
+import { onLogin } from '../../services/authService';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const from = location.state?.from?.pathname || '/explorar';
+
   const handleLogin = async (credentials) => {
+    setLoading(true);
+    setError('');
+    
     try {
-      setLoading(true);
-      setError('');
-      await loginUser(credentials);
-      navigate('/comunidad');
+      await onLogin({
+        username: credentials.email,
+        password: credentials.password
+      }, navigate, from);
     } catch (err) {
-      setError('Credenciales incorrectas. Por favor intenta nuevamente.');
+      setError('Ocurrió un error al iniciar sesión');
     } finally {
       setLoading(false);
     }

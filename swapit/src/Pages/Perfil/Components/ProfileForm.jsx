@@ -1,140 +1,214 @@
-import React, { useState } from 'react';
-import Button from '../../../Components/UI/buttons';
+import React, { useState, useEffect } from 'react';
+import { Button, Input, Form, Row, Col, Divider, message } from 'antd';
+import { UserOutlined, MailOutlined, PhoneOutlined, LockOutlined } from '@ant-design/icons';
 
-const ProfileForm = ({ onSubmit, loading, error }) => {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
+const ProfileForm = ({ userData, onSubmit, loading, error }) => {
+  const [form] = Form.useForm();
+  const [passwordForm] = Form.useForm();
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  useEffect(() => {
+    if (userData) {
+      form.setFieldsValue({
+        firstName: userData.nombre || '',
+        lastName: userData.apellido || '',
+        email: userData.email || '',
+        phone: userData.telefono || '',
+      });
+    }
+  }, [userData, form]);
+
+  const handleProfileSubmit = async (values) => {
+    setSubmitLoading(true);
+    try {
+      await onSubmit({
+        type: 'profile',
+        data: values
+      });
+      message.success('Información personal actualizada correctamente');
+    } catch (err) {
+      message.error(error || 'Error al actualizar información');
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
+  const handlePasswordSubmit = async (values) => {
+    setPasswordLoading(true);
+    try {
+      await onSubmit({
+        type: 'password',
+        data: values
+      });
+      passwordForm.resetFields();
+      message.success('Contraseña actualizada correctamente');
+    } catch (err) {
+      message.error(error || 'Error al actualizar contraseña');
+    } finally {
+      setPasswordLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={styles.container}>
+    <div style={styles.container}>
       {/* Información personal */}
       <div style={styles.section}>
         <h3 style={styles.title}>Información personal</h3>
-        <div style={styles.row}>
-          <div style={styles.inputContainer}>
-            <label style={styles.label}>Nombre</label>
-            <input
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
-              placeholder="Nombre"
-              style={styles.input}
-            />
-          </div>
-          <div style={styles.inputContainer}>
-            <label style={styles.label}>Apellido</label>
-            <input
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleChange}
-              placeholder="Apellido"
-              style={styles.input}
-            />
-          </div>
-        </div>
-        <div style={styles.row}>
-          <div style={styles.inputContainer}>
-            <label style={styles.label}>Correo</label>
-            <input
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Correo"
-              style={styles.input}
-            />
-          </div>
-          <div style={styles.inputContainer}>
-            <label style={styles.label}>Teléfono</label>
-            <input
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="Teléfono"
-              style={styles.input}
-            />
-          </div>
-        </div>
-
-        {/* ✅ Botón centrado correctamente */}
-        <div style={styles.buttonContainer}>
-          <Button 
-            type="submit"
-            disabled={loading}
-          >
-            {loading ? 'Guardando...' : 'Guardar'}
-          </Button>
-        </div>
+        <Form
+          form={form}
+          onFinish={handleProfileSubmit}
+          layout="vertical"
+          style={styles.formContainer}
+        >
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="firstName"
+                label="Nombre"
+                rules={[{ required: true, message: 'Por favor ingresa tu nombre' }]}
+              >
+                <Input 
+                  prefix={<UserOutlined style={{ color: '#2a9d8f' }} />} 
+                  placeholder="Nombre"
+                  style={styles.input}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="lastName"
+                label="Apellido"
+                rules={[{ required: true, message: 'Por favor ingresa tu apellido' }]}
+              >
+                <Input 
+                  prefix={<UserOutlined style={{ color: '#2a9d8f' }} />} 
+                  placeholder="Apellido"
+                  style={styles.input}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="email"
+                label="Correo"
+                rules={[
+                  { required: true, message: 'Por favor ingresa tu correo' },
+                  { type: 'email', message: 'Correo inválido' }
+                ]}
+              >
+                <Input 
+                  prefix={<MailOutlined style={{ color: '#2a9d8f' }} />} 
+                  placeholder="Correo"
+                  style={styles.input}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="phone"
+                label="Teléfono"
+              >
+                <Input 
+                  prefix={<PhoneOutlined style={{ color: '#2a9d8f' }} />} 
+                  placeholder="Teléfono"
+                  style={styles.input}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item style={styles.buttonContainer}>
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              loading={submitLoading}
+              style={styles.button}
+            >
+              {submitLoading ? 'Guardando...' : 'Guardar'}
+            </Button>
+          </Form.Item>
+        </Form>
       </div>
 
-      <hr style={styles.divider} />
+      <Divider style={styles.divider} />
 
       {/* Cambiar contraseña */}
       <div style={styles.section}>
         <h3 style={styles.title}>Cambiar contraseña</h3>
-        <div style={styles.inputContainer}>
-          <label style={styles.label}>Contraseña actual</label>
-          <input
-            type="password"
+        <Form
+          form={passwordForm}
+          onFinish={handlePasswordSubmit}
+          layout="vertical"
+          style={styles.formContainer}
+        >
+          <Form.Item
             name="currentPassword"
-            value={formData.currentPassword}
-            onChange={handleChange}
-            placeholder="Contraseña actual"
-            style={styles.input}
-          />
-        </div>
-        <div style={styles.row}>
-          <div style={styles.inputContainer}>
-            <label style={styles.label}>Nueva contraseña</label>
-            <input
-              type="password"
-              name="newPassword"
-              value={formData.newPassword}
-              onChange={handleChange}
-              placeholder="Nueva contraseña"
-              style={styles.input}
-            />
-          </div>
-          <div style={styles.inputContainer}>
-            <label style={styles.label}>Confirmar contraseña</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Confirmar contraseña"
-              style={styles.input}
-            />
-          </div>
-        </div>
-
-        {/* ✅ Botón centrado correctamente */}
-        <div style={styles.buttonContainer}>
-          <Button 
-            type="submit"
-            disabled={loading}
+            label="Contraseña actual"
+            rules={[{ required: true, message: 'Por favor ingresa tu contraseña actual' }]}
           >
-            {loading ? 'Guardando...' : 'Guardar'}
-          </Button>
-        </div>
+            <Input.Password 
+              prefix={<LockOutlined style={{ color: '#2a9d8f' }} />} 
+              placeholder="Contraseña actual"
+              style={styles.input}
+            />
+          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="newPassword"
+                label="Nueva contraseña"
+                rules={[
+                  { required: true, message: 'Por favor ingresa tu nueva contraseña' },
+                  { min: 6, message: 'La contraseña debe tener al menos 6 caracteres' }
+                ]}
+              >
+                <Input.Password 
+                  prefix={<LockOutlined style={{ color: '#2a9d8f' }} />} 
+                  placeholder="Nueva contraseña"
+                  style={styles.input}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="confirmPassword"
+                label="Confirmar contraseña"
+                dependencies={['newPassword']}
+                rules={[
+                  { required: true, message: 'Por favor confirma tu nueva contraseña' },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue('newPassword') === value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(new Error('Las contraseñas no coinciden'));
+                    },
+                  }),
+                ]}
+              >
+                <Input.Password 
+                  prefix={<LockOutlined style={{ color: '#2a9d8f' }} />} 
+                  placeholder="Confirmar contraseña"
+                  style={styles.input}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item style={styles.buttonContainer}>
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              loading={passwordLoading}
+              style={styles.button}
+            >
+              {passwordLoading ? 'Guardando...' : 'Guardar'}
+            </Button>
+          </Form.Item>
+        </Form>
       </div>
-    </form>
+    </div>
   );
 };
 
@@ -156,32 +230,20 @@ const styles = {
     color: '#333',
     marginBottom: '12px',
   },
-  row: {
-    display: 'flex',
-    gap: '16px',
-    marginBottom: '12px',
-  },
-  inputContainer: {
-    flex: 1,
-  },
-  label: {
-    display: 'block',
-    fontSize: '14px',
-    marginBottom: '6px',
-    color: '#555',
+  formContainer: {
+    width: '100%',
   },
   input: {
-    width: '100%',
-    padding: '10px',
     borderRadius: '8px',
-    border: '1px solid #ccc',
-    fontSize: '16px',
-    boxSizing: 'border-box',
   },
   buttonContainer: {
     display: 'flex',
-    justifyContent: 'center', // ✅ Centrar botón
+    justifyContent: 'center',
     marginTop: '20px',
+  },
+  button: {
+    backgroundColor: '#2a9d8f',
+    borderColor: '#2a9d8f',
   },
   divider: {
     border: 'none',

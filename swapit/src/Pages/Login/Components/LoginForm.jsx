@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import styles from './LoginForm.module.css';
+import styles from '../../Styles/LoginForm.module.css';
 import FormInput from '../../../Components/UI/FormInput';
 import Button from '../../../Components/UI/buttons';
 import ErrorMessage from '../../../Components/UI/ErrorMessage';
